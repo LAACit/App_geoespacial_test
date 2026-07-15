@@ -3,11 +3,11 @@ library(bslib)
 library(leaflet)
 
 
-
 # Define UI for application that draws a histogram
 ui <- page_sidebar(
     #Funcionamiento 
-    
+
+
     #titulo
     title="Dashboard",
     
@@ -26,15 +26,20 @@ ui <- page_sidebar(
                     multiple = TRUE, 
                     selected = NULL ), 
         
-        #Selector por tipo
-        selectInput("select_tipo",
-                    label="Selector de tipo/zona",
-                    choices = zona_hex)
-
+        hr(),
+        
+        card(),
+        
+        downloadButton("downloadData", "Download mtcars"),
+    
+        
+        nav_item(input_dark_mode())
         
          ),
      
-        leafletOutput("mapa")
+     leafletOutput("mapa"),
+    
+   
     
 )
 
@@ -69,11 +74,11 @@ server <- function(input, output) {
                         stroke = TRUE,
                         color = "black",
                         weight = 0.5,
-                        popup = paste0("HEX_ID:", malla_representacion$hex_id, "<br>",
-                                       "ESTADO: ",malla_representacion$estado, "<br>",
-                                       "Tipo: ", malla_representacion$tipo, "<br>",
-                                       "Valor: ", malla_representacion$precipitacion_mm_anio ,"mm" 
-                                   ),
+                        popup = paste0("<b>HEX_ID:</b> ", malla_representacion$hex_id, "<br>",
+                                       "<b>ESTADO:</b> ", malla_representacion$estado, "<br>",
+                                       "<b>Tipo:</b> ", malla_representacion$tipo, "<br>",
+                                       "<b>Valor:</b> ", round(malla_representacion$precipitacion_mm_anio,digits = 2), " mm"
+                        ),
                         
                         )|>
             addLegend(position = "bottomright",
