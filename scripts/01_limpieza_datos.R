@@ -20,6 +20,10 @@ malla_precip_mm_anual<-left_join(malla,df,by = "hex_id")
 estados_mx<-unique(malla_precip_mm_anual$estado)
 zona_hex<-unique(malla_precip_mm_anual$zona)
 
+#Vamos a tomar los metadatos
+meta<-read_xlsx("./data/precipitacion_2100_ssp126.xlsx",sheet = 2)
+
+
 
 #Guardamos para usar en la shiny 
 save.image("./results/malla_precip_mm_anual.Rdata")
