@@ -1,17 +1,18 @@
 library(shiny)
 library(bslib)
 library(leaflet)
+library(DT)
 
 
 # Define UI for application that draws a histogram
 ui <- page_navbar(
     
     #titulo
-    title="Dashboards geoespacial ",
+    title= "Dashboards geoespacial",
     
     #Sidebar compartido 
     sidebar=sidebar(
-        "Selecciona variables de interés",
+        paste0(meta$descripcion),
         
         #Selector por estado de la republica 
         selectInput("select_estado",
@@ -19,8 +20,29 @@ ui <- page_navbar(
                     choices = estados_mx, 
                     multiple = TRUE, 
                     selected = NULL ), 
+        
     
         hr(),
+        
+        card(
+            
+            card_header("Acerca de estos datos"),
+            card_body(
+                style = "font-size: 10px;",
+                tags$dl(
+                    tags$dt("Descripción"),
+                    tags$dd(meta$descripcion),
+                    tags$dt("Fuente"),
+                    tags$dd(meta$fuente),
+                    tags$dt("Unidades"),
+                    tags$dd(meta$unidades)
+                )
+            )
+        )
+        
+        
+        ,
+        
         
         #Espacio de descargas 
         downloadButton("downloadData", "Descarga datos")
@@ -36,17 +58,29 @@ ui <- page_navbar(
     
     #Ventana de información complementaria 
     nav_panel(
-        title = "Datos e información complemetaria",
-        card(plotOutput("boxplot", height = "200px"))),
-    
+        title = "Datos e información complementaria",
+        layout_columns(
+            card(
+                card_header("Boxplot por estado"),
+                card_body(plotOutput("boxplot", height = "300px"))
+            ),
+            card(
+                card_header("Histograma por estado"),
+                card_body(plotOutput("histograma", height = "300px"))
+            )
+        )
+    )
+    ,
+        
     
     footer = div(
         style = "background-color:#000000; color:white; text-align:center; 
                  padding:8px; font-size:12px; width:100%;",
-        "Fuente: Proyección de precipitación SSP1-2.6. "),
+        "Responsable academido: xxxx@unam.mx  ||   Proyecto: XXX-XXX-SEHICTY  ||  Mantenimiento: lalejandroavc@gmail.com "),
 
     nav_item(input_dark_mode())
 )
+
 
 
 
@@ -59,6 +93,8 @@ server <- function(input, output) {
         palette = "cividis",  
         domain = malla_precip_mm_anual$precipitacion_mm_anio 
     )
+    
+    
     
     
     #HTML para el POPUP 
@@ -86,7 +122,7 @@ server <- function(input, output) {
                         popup = paste0("<b>HEX_ID:</b> ", malla_representacion$hex_id, "<br>",
                                        "<b>ESTADO:</b> ", malla_representacion$estado, "<br>",
                                        "<b>Tipo:</b> ", malla_representacion$tipo, "<br>",
-                                       "<b>Valor:</b> ", round(malla_representacion$precipitacion_mm_anio,digits = 2), " mm"
+                                       "<b>Valor:</b> ", round(malla_representacion$precipitacion_mm_anio,digits = 2), " mm/año"
                         ),
                         
                         )|>
@@ -114,6 +150,31 @@ server <- function(input, output) {
             labs(x = "Estado", y = "Precipitación (mm/año)")
         
     })
+    
+    output$histograma <- renderPlot({
+        
+        datos_plot <- malla_precip_mm_anual |>
+            mutate(seleccionado = estado %in% input$select_estado)
+        
+        ggplot(data = datos_plot) +
+            geom_histogram(aes(x = precipitacion_mm_anio, fill = seleccionado),
+                           bins = 30,
+                           position = "identity",
+                           alpha = 0.7) +
+            scale_fill_manual(values = c("TRUE" = "#F9A825", "FALSE" = "grey80"),
+                              guide = "none") +
+            theme_bw() +
+            labs(x = "Precipitación (mm/año)", y = "Frecuencia (# de hexágonos)")
+        
+    })
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 
