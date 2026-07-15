@@ -20,7 +20,6 @@ ui <- page_navbar(
                     choices = estados_mx, 
                     multiple = TRUE, 
                     selected = NULL ), 
-        
     
         hr(),
         
@@ -80,7 +79,6 @@ ui <- page_navbar(
 
     nav_item(input_dark_mode())
 )
-
 
 
 
@@ -168,7 +166,19 @@ server <- function(input, output) {
         
     })
     
+  
     
+    
+    output$downloadData <- downloadHandler(
+        filename = function() {
+            paste0(paste(input$select_estado, collapse = "_"), "_precipitacion.gpkg")
+        },
+        content = function(file) {
+            df_exportar <- malla_precip_mm_anual
+            
+            sf::st_write(df_exportar, file, driver = "GPKG", delete_dsn = TRUE)
+        }
+    )
     
     
     
