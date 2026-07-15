@@ -13,7 +13,7 @@ st_crs(malla)
 str(malla)
 
 #Vamos a unir por id de hexagon 
-malla_precip_mm_anual<-left_join(malla,df)
+malla_precip_mm_anual<-left_join(malla,df,by = "hex_id")
 
 
 #Vamos a extraer columnas de los estados y datos relevantes

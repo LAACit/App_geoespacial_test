@@ -43,30 +43,44 @@ ui <- page_sidebar(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
+   
     #Paleta de color continua para precipitación
     pal <- colorNumeric(
-        palette = "viridis",   # o "Blues", "viridis", etc.
-        domain = malla_precip_mm_anual$precipitacion_mm_anio  # tu columna numérica
+        palette = "viridis",  
+        domain = malla_precip_mm_anual$precipitacion_mm_anio 
     )
+    
+    
+    #HTML para el POPUP 
     
     #Añadimos el mapa 
     output$mapa<-renderLeaflet({
+        
+        #Preparamos el mapa para representar en base a lo filtrado 
+        malla_representacion  <- malla_precip_mm_anual[malla_precip_mm_anual$estado %in% input$select_estado, ]
+        
+        
         leaflet()|>
             addTiles()|>
             setView(lng = -102.5528, lat = 23.6345, zoom = 5)|>#Mantenemos zoom en mexico 
-            addPolygons(data=malla_precip_mm_anual[malla_precip_mm_anual$estado %in% input$select_estado, ],
+            addPolygons(data=malla_representacion[malla_representacion$estado %in% input$select_estado, ],
                         fillColor = ~pal(precipitacion_mm_anio),
-                        fillOpacity = 0.8,
-                        stroke = FALSE,
-                        weight = 0.1,
-                        color= "white"
+                        fillOpacity = 0.1,
+                        stroke = TRUE,
+                        color = "black",
+                        weight = 0.5,
+                        popup = paste0("HEX_ID:", malla_representacion$hex_id, "<br>",
+                                       "ESTADO: ",malla_representacion$estado, "<br>",
+                                       "Tipo: ", malla_representacion$tipo, "<br>",
+                                       "Valor: ", malla_representacion$precipitacion_mm_anio ,"mm" 
+                                   ),
+                        
                         )|>
             addLegend(position = "bottomright",
                       pal = pal,
-                      values = malla_precip_mm_anual$precipitacion_mm_anio,
-                      title = "Precipitación (mm/año)")|>
-            addPopups(popup = malla_precip_mm_anual[malla_precip_mm_anual$estado %in% input$select_estado, ],)
-        
+                      values = malla_representacion$precipitacion_mm_anio,
+                      title = "Precipitación (mm/año)")
+
     })
     
 
