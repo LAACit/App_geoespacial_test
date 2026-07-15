@@ -18,26 +18,18 @@ ui <- page_sidebar(
         
 
         #Selector por estado de la republica 
-        selectInput("Select_estado",
+        selectInput("select_estado",
                     label="Selector de Estados",
                     choices = estados_mx), 
         
         #Selector por tipo
-        selectInput("Select_tipo",
+        selectInput("select_tipo",
                     label="Selector de tipo/zona",
                     choices = zona_hex)
         
         
         
          ),
-    
-   
-    
-    
-    
-    
-    
-    
      
         leafletOutput("mapa")
     
@@ -46,12 +38,12 @@ ui <- page_sidebar(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
-    
     #Añadimos el mapa 
     output$mapa<-renderLeaflet({
         leaflet()|>
             addTiles()|>
-            setView(lng = -102.5528, lat = 23.6345, zoom = 5) #Mantenemos zoom en mexico 
+            setView(lng = -102.5528, lat = 23.6345, zoom = 5)|>#Mantenemos zoom en mexico 
+            addPolygons(data=malla_precip_mm_anual[malla_precip_mm_anual$estado==input$select_estado, ])
         
         
     })
