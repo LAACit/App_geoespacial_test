@@ -37,15 +37,10 @@ ui <- page_navbar(
                     tags$dd(meta$unidades)
                 )
             )
-        )
-        
-        
-        ,
-        
+        ),
         
         #Espacio de descargas 
-        downloadButton("downloadData", "Descarga datos")
-        ),
+        downloadButton("downloadData", "Descarga datos")),
      
     
     #Ventana del mapa 
@@ -56,21 +51,45 @@ ui <- page_navbar(
     
     
     #Ventana de información complementaria 
+    
     nav_panel(
-        title = "Datos e información complementaria",
-        layout_columns(
-            card(
-                card_header("Boxplot por estado"),
-                card_body(plotOutput("boxplot", height = "300px"))
-            ),
-            card(
-                card_header("Histograma por estado"),
-                card_body(plotOutput("histograma", height = "300px"))
-            )
+      title = "Datos e información complementaria",
+      
+      style = "overflow-y: auto; height: 100vh;",
+      
+      layout_columns(
+        card(
+          card_header("Boxplot por estado"),
+          card_body(plotOutput("boxplot", height = "300px"))
+        ),
+        card(
+          card_header("Datos por estado"),
+          card_body(tableOutput("mean_precip_table"))
         )
+      ) 
+      
+      
+      #Se puede añadir un histograma u otra grafica de analisis 
+      
+      # card(
+      #   card_header("Histograma datos")
+      #   card_body(plotOutput("histograma"))
+      # )
+      # 
+      
+      
+    ),
+    
+    #Ventana del mapa 
+    nav_panel(
+      title = "Datos proyecto ",
+      card(
+        card_header("Datos de proyectos"),
+        card_body(p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut leo in ipsum finibus tincidunt. Duis sit amet dolor at lectus suscipit scelerisque. Maecenas quis eros id augue efficitur pulvinar. Morbi id odio tortor. Fusce volutpat id sem a gravida. Ut vehicula purus vitae tellus imperdiet pulvinar. Mauris eget rhoncus lorem. Praesent sollicitudin laoreet ipsum, et posuere enim feugiat et. Quisque lacus arcu, accumsan eu rhoncus id, vestibulum vitae ante. Pellentesque facilisis diam ut porta aliquam. In ut justo ligula. Duis nec odio in elit hendrerit consequat in in dolor. In in risus accumsan, dignissim elit a, auctor erat. Proin orci ex, sodales ac sapien eu, porttitor ultrices enim.
+                  "),p("Nulla sit amet interdum augue. Proin ac efficitur metus. Pellentesque sollicitudin dolor et nisl posuere dictum. Phasellus vel mi tristique, ultrices libero et, dignissim neque. Nulla consequat nulla a lorem ultricies condimentum sollicitudin a ante. Aliquam vel lacus a arcu hendrerit sollicitudin et at urna. Etiam porta sapien enim, in consectetur nisi rhoncus ac. Fusce gravida mi a sem lacinia volutpat. Curabitur commodo euismod tortor sed condimentum. Phasellus id posuere nulla. Etiam blandit odio sit amet nisi mollis, eget molestie enim interdum. Praesent accumsan ex vitae augue tincidunt, ac pretium eros blandit. Phasellus tortor nibh, ornare eget sem non, accumsan fringilla lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce vel congue lectus, quis dapibus lacus. "))
     )
-    ,
-        
+    ),
+    
     
     footer = div(
         style = "background-color:#000000; color:white; text-align:center; 
@@ -85,17 +104,13 @@ ui <- page_navbar(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
-   
+    #mapa ---------------------
     #Paleta de color continua para precipitación
     pal <- colorNumeric(
         palette = "cividis",  
         domain = malla_precip_mm_anual$precipitacion_mm_anio 
     )
     
-    
-    
-    
-    #HTML para el POPUP 
     
     #Añadimos el mapa 
     output$mapa<-renderLeaflet({
@@ -114,9 +129,13 @@ server <- function(input, output) {
             addPolygons(data=malla_representacion[malla_representacion$estado %in% input$select_estado, ],
                         fillColor = ~pal(precipitacion_mm_anio),
                         fillOpacity = 0.78,
-                        stroke = FALSE,
-                        #color = "black",
-                        #weight = 0.1,
+                      
+                        stroke = TRUE,
+                        color = ~pal(precipitacion_mm_anio),
+                        weight = 1,
+                        smoothFactor = 0,                        
+                        
+                      
                         popup = paste0("<b>HEX_ID:</b> ", malla_representacion$hex_id, "<br>",
                                        "<b>ESTADO:</b> ", malla_representacion$estado, "<br>",
                                        "<b>Tipo:</b> ", malla_representacion$tipo, "<br>",
@@ -131,6 +150,7 @@ server <- function(input, output) {
 
     })
     
+    #boxplot-----------------------------------
     
     output$boxplot <- renderPlot({
         
@@ -149,6 +169,9 @@ server <- function(input, output) {
         
     })
     
+    
+    #histograma----------------------------
+    
     output$histograma <- renderPlot({
         
         datos_plot <- malla_precip_mm_anual |>
@@ -165,9 +188,16 @@ server <- function(input, output) {
             labs(x = "Precipitación (mm/año)", y = "Frecuencia (# de hexágonos)")
         
     })
+
     
+    #tabla de datos--------------------------
+    
+    output$mean_precip_table <- renderTable({
+      mean_precip_mm_anual
+    })
   
     
+    #boton de descarga----------------------
     
     output$downloadData <- downloadHandler(
         filename = function() {
