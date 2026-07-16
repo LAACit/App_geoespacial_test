@@ -4,7 +4,8 @@ library(leaflet)
 library(DT)
 
 
-# Define UI for application that draws a histogram
+
+
 ui <- page_navbar(
     
     #titulo
@@ -53,7 +54,7 @@ ui <- page_navbar(
     #Ventana de información complementaria 
     
     nav_panel(
-      title = "Datos e información complementaria",
+      title = "Datos complementaria",
       
       style = "overflow-y: auto; height: 100vh;",
       
@@ -62,10 +63,20 @@ ui <- page_navbar(
           card_header("Boxplot por estado"),
           card_body(plotOutput("boxplot", height = "300px"))
         ),
+        
+        
         card(
           card_header("Datos por estado"),
-          card_body(tableOutput("mean_precip_table"))
+          card_body(
+            tags$style(HTML("
+      #mean_precip_table table { font-size: 11px; }
+      #mean_precip_table th, #mean_precip_table td { padding: 4px 6px; }")),
+            tableOutput("mean_precip_table")
+          )
         )
+        
+
+        
       ) 
       
       
@@ -82,12 +93,34 @@ ui <- page_navbar(
     
     #Ventana del mapa 
     nav_panel(
-      title = "Datos proyecto ",
+      title = "Sobre este proyecto ",
       card(
         card_header("Datos de proyectos"),
-        card_body(p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut leo in ipsum finibus tincidunt. Duis sit amet dolor at lectus suscipit scelerisque. Maecenas quis eros id augue efficitur pulvinar. Morbi id odio tortor. Fusce volutpat id sem a gravida. Ut vehicula purus vitae tellus imperdiet pulvinar. Mauris eget rhoncus lorem. Praesent sollicitudin laoreet ipsum, et posuere enim feugiat et. Quisque lacus arcu, accumsan eu rhoncus id, vestibulum vitae ante. Pellentesque facilisis diam ut porta aliquam. In ut justo ligula. Duis nec odio in elit hendrerit consequat in in dolor. In in risus accumsan, dignissim elit a, auctor erat. Proin orci ex, sodales ac sapien eu, porttitor ultrices enim.
-                  "),p("Nulla sit amet interdum augue. Proin ac efficitur metus. Pellentesque sollicitudin dolor et nisl posuere dictum. Phasellus vel mi tristique, ultrices libero et, dignissim neque. Nulla consequat nulla a lorem ultricies condimentum sollicitudin a ante. Aliquam vel lacus a arcu hendrerit sollicitudin et at urna. Etiam porta sapien enim, in consectetur nisi rhoncus ac. Fusce gravida mi a sem lacinia volutpat. Curabitur commodo euismod tortor sed condimentum. Phasellus id posuere nulla. Etiam blandit odio sit amet nisi mollis, eget molestie enim interdum. Praesent accumsan ex vitae augue tincidunt, ac pretium eros blandit. Phasellus tortor nibh, ornare eget sem non, accumsan fringilla lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce vel congue lectus, quis dapibus lacus. "))
-    )
+        card_body(
+        
+        p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut leo 
+        in ipsum finibus tincidunt.  Duis sit amet dolor at lectus suscipit scelerisque.
+        Maecenas quis eros id augue efficitur pulvinar. Morbi id odio tortor. Fusce volutpat id sem a gravida.
+        Ut vehicula purus vitae tellus imperdiet pulvinar. Mauris eget rhoncus lorem. 
+        Praesent sollicitudin laoreet ipsum, et posuere enim feugiat et. 
+        Quisque lacus arcu, accumsan eu rhoncus id, vestibulum vitae ante. 
+        Pellentesque facilisis diam ut porta aliquam. In ut justo ligula. 
+        Duis nec odio in elit hendrerit consequat in in dolor. 
+        In in risus accumsan, dignissim elit a, auctor erat. 
+        Proin orci ex, sodales ac sapien eu, porttitor ultrices enim."),
+                  
+        p("Nulla sit amet interdum augue. Proin ac efficitur metus. 
+          Pellentesque sollicitudin dolor et nisl posuere dictum. Phasellus vel 
+          mi tristique, ultrices libero et, dignissim neque. Nulla consequat nulla
+          a lorem ultricies condimentum sollicitudin a ante. Aliquam vel lacus a 
+          arcu hendrerit sollicitudin et at urna. Etiam porta sapien enim, in 
+          consectetur nisi rhoncus ac. Fusce gravida mi a sem lacinia volutpat. 
+          Curabitur commodo euismod tortor sed condimentum. Phasellus id posuere 
+          nulla. Etiam blandit odio sit amet nisi mollis, eget molestie enim 
+          interdum. Praesent accumsan ex vitae augue tincidunt, ac pretium eros 
+          blandit. Phasellus tortor nibh, ornare eget sem non, accumsan fringilla
+          lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices 
+          posuere cubilia curae; Fusce vel congue lectus, quis dapibus lacus.")))
     ),
     
     
@@ -118,8 +151,7 @@ server <- function(input, output) {
         #Preparamos el mapa para representar en base a lo filtrado 
         malla_representacion <- malla_precip_mm_anual |>
             filter(
-                if (is.null(input$select_estado)) TRUE else estado %in% input$select_estado,
-                if (is.null(input$select_tipo))   TRUE else tipo   %in% input$select_tipo
+                if (is.null(input$select_estado)) TRUE else estado %in% input$select_estado
             )
         
         

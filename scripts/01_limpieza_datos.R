@@ -6,8 +6,6 @@ library(readxl)
 df<-read_xlsx("./data/precipitacion_2100_ssp126.xlsx")
 str(df)
 
-
-
 #abrimos datos de la grid
 malla<-read_sf("./data/malla_hex_10km.gpkg")
 #Checamos atributos geoespaciales 
@@ -36,6 +34,8 @@ mean_precip_mm_anual<-malla_precip_mm_anual|>
 
 #Guardamos para usar en la shiny 
 save.image("./results/malla_precip_mm_anual.Rdata")
+
+load("./results/malla_precip_mm_anual.Rdata")
 
 
 
